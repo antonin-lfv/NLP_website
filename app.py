@@ -1,10 +1,6 @@
-from config import *
-
-from auth.auth import BLP_auth
+from flask import Flask
 from general.general import BLP_general
 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app = Flask(__name__, template_folder='templates')
 
-app.register_blueprint(BLP_auth)
 app.register_blueprint(BLP_general)
