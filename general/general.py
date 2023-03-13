@@ -14,10 +14,10 @@ def home():
         else:
             input_file = request.files.get('file_input')
             # read txt file with numpy
-            if input_file:
+            if input_file.filename.endswith('.txt'):
                 input_data = input_file.read().decode('utf-8')
 
-        # Work with input_data
+        # Work with input_data (NLTK and Gensim)
         print(input_data)
 
     return render_template('index.html')
