@@ -11,6 +11,13 @@
           align-items: center;
 }
 
+.form-control::file-selector-button {
+  color: grey;
+}
+.form-control::placeholder {
+  color: grey;
+}
+
 /*===========================
     01.COMMON css 
 ===========================*/
