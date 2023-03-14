@@ -1,8 +1,11 @@
-flask
-numpy
+flask~=2.2.2
+numpy~=1.23.5
 pandas
-plotly
+plotly~=5.11.0
 flask-nav
 jsons
 pip
 requests
+nltk~=3.8.1
+wordcloud~=1.8.2.2
+Pillow~=9.3.0
