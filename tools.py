@@ -1,16 +1,21 @@
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 from wordcloud import WordCloud
 import en_core_web_sm
 import plotly.io as pio
 import nltk
+from gensim.utils import simple_preprocess
+from gensim.models import Word2Vec
+from gensim.models import LdaModel
+from gensim.corpora import Dictionary
+from nltk.stem import WordNetLemmatizer
 import numpy as np
-from PIL import Image
 import plotly
 import json
 from collections import defaultdict, Counter
 import re
 
+
+# ---- NLTK ----
 
 def number_of_words_for_each_amount_of_letters(texte):
     """
@@ -243,10 +248,68 @@ def plot_most_frequent_words_evolution(texte, lang):
     return [fig, "Évolution des 10 mots les plus fréquents sur chaque partie du texte"]
 
 
+# ----- Gensim -----
+# -- Prétraitement --
+# Prétraiter le texte
+def preprocess(text):
+    result = simple_preprocess(text)
+    # use nltk for cleaning
+    lemmatizer = WordNetLemmatizer()
+    result = [lemmatizer.lemmatize(word) for word in result]
+    # remove stopwords
+    stop_words = nltk.corpus.stopwords.words('english')
+    result = [word for word in result if word not in stop_words]
+    return result
+
+
+# -- Similarité sémantique --
+def similar_words(text, word):
+    """
+    Return the 5 most similar words to the given word
+    :param text: the text to analyse
+    :param word: the word to find similar words to
+    :return: the 5 most similar words
+    """
+    # convert the text into a format usable by Gensim
+    documents = [preprocess(text)]
+    # create a Word2Vec model
+    model = Word2Vec(documents, min_count=1)
+    # train the model with Gensim
+    model.train(documents, total_examples=len(documents), epochs=30)
+    # find similar words
+    similar_words = model.wv.most_similar(word)
+    return similar_words[0]
+
+
+# -- Analyse de thèmes --
+def analyse_themes(text):
+    """
+    Analyse the text and return the 5 most important themes
+    :param text: the text to analyse
+    :return: the 5 most important themes
+    """
+    # Convertir le texte en un format utilisable par Gensim
+    documents = [preprocess(text)]
+    # Créer un dictionnaire de mots
+    dictionary = Dictionary(documents)
+    # Convertir le corpus en un format utilisable par Gensim
+    corpus = [dictionary.doc2bow(doc) for doc in documents]
+    # Créer un modèle LDA
+    num_topics = 1  # nombre de thèmes à identifier
+    lda_model = LdaModel(corpus=corpus, id2word=dictionary, num_topics=num_topics)
+    # Obtenir les mots clés de chaque thème
+    topics = lda_model.show_topics(num_topics=num_topics, num_words=6)
+    topics_lst = []
+    for topic in topics:
+        topics_lst.append(topic[1].split('"')[1::2])
+    return topics_lst
+
+
 if __name__ == '__main__':
     lang = "english"
     texte = "The quick brown fox jumps over the lazy dog. pretty, cool, is, leave, jgqziefgvahkzeg " \
             "fgefug, lhqgeUFDYGZUEYGFOZEUF,"
+    # nltk and wordcloud
     plot_number_of_words_for_each_amount_of_letters(texte)
     plot_wordcloud_most_frequent_words(texte)
     plot_wordcloud_most_frequent_words_len_more_6(texte)
@@ -255,3 +318,6 @@ if __name__ == '__main__':
     plot_wordcloud_most_frequent_adjectives_last_30(texte)
     plot_wordcloud_most_frequent_words_without_stopwords(texte, lang)
     plot_most_frequent_words_evolution(texte, lang)
+    # gensim
+    similar_words(texte, "dog")
+    analyse_themes(texte)

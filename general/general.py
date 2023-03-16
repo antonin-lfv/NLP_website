@@ -10,6 +10,7 @@ def home():
     input_data = None
     figures = None
     statistics = None
+    topics = None
     if request.method == "POST":
         if request.form.get("text_input"):
             input_data = request.form.get("text_input")
@@ -30,5 +31,8 @@ def home():
                    plot_wordcloud_most_frequent_words_without_stopwords(input_data, lang),
                    plot_most_frequent_words_evolution(input_data, lang)]
         statistics = stats(input_data)
+        # use gensim to get the topics
+        topics = analyse_themes(input_data)[0]
 
-    return render_template('index.html', figures=figures, statistics=statistics, enumerate=enumerate)
+    return render_template('index.html', figures=figures, statistics=statistics, enumerate=enumerate,
+                           topics=topics)

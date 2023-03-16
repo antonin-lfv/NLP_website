@@ -9,3 +9,4 @@ requests
 nltk~=3.8.1
 wordcloud~=1.8.2.2
 Pillow~=9.3.0
+gensim~=4.3.0
